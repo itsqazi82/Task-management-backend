@@ -13,15 +13,25 @@ connectDB();
 
 // Middleware
 const allowedOrigins = [
-  "https://task-management-frontend-three-gamma.vercel.app/", 
+  "https://task-management-frontend-three-gamma.vercel.app",
 ];
 
 app.use(cors({
-  origin: "*",
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  origin: allowedOrigins,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
 }));
+
+// ✅ Handle preflight
 app.options("*", cors());
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+  next();
+});
 
 app.use(express.json());
 

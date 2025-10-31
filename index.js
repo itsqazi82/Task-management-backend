@@ -12,7 +12,15 @@ const app = express();
 connectDB();
 
 // Middleware
-app.use(cors()); // Allow all origins
+const allowedOrigins = [
+  "https://task-management-frontend-three-gamma.vercel.app/", 
+];
+
+app.use(cors({
+  origin: allowedOrigins,
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
 app.use(express.json());
 
 // Routes

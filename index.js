@@ -8,21 +8,34 @@ const taskRoutes = require('./routes/taskRoutes');
 
 const app = express();
 
-// Connect to DB
+// ✅ Connect to MongoDB
 connectDB();
 
-// ✅ Allow ALL origins — NO CORS errors
+// ✅ Allowed Frontend URLs
+const allowedOrigins = [
+  "https://task-management-frontend-three-gamma.vercel.app",
+  "http://localhost:5173",
+  "http://localhost:3000"
+];
+
 app.use(cors({
-  origin: "*",
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log("❌ CORS Blocked:", origin);
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
   methods: "GET,POST,PUT,DELETE,OPTIONS",
   allowedHeaders: "Content-Type, Authorization"
 }));
 
-// ✅ Handle preflight requests to avoid errors
-app.options("/*", (req, res) => {
-  res.sendStatus(200);
-});
+// ✅ Handle preflight requests
+app.options("*", cors());
 
+// ✅ Parse JSON
 app.use(express.json());
 
 // ✅ Routes
@@ -30,8 +43,8 @@ app.post('/api/auth/login', login);
 app.use('/api/admin', adminRoutes);
 app.use('/api/tasks', taskRoutes);
 
-// ✅ Start server
+// ✅ Port + Host for Railway / Vercel / Docker
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on port ${PORT} and host 0.0.0.0`);
+  console.log(`✅ Server running at http://0.0.0.0:${PORT}`);
 });

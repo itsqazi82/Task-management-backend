@@ -11,17 +11,26 @@ const app = express();
 // Connect to MongoDB
 connectDB();
 
-// Middleware
 const allowedOrigins = [
-  "https://task-management-frontend-three-gamma.vercel.app",
+  "https://task-management-frontend-three-gamma.vercel.app"
 ];
 
-app.use(cors());
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("CORS blocked"));
+    }
+  },
+  methods: "GET,POST,PUT,DELETE,OPTIONS",
+  allowedHeaders: "Content-Type,Authorization"
+}));
 
-// ✅ Handle preflight
-// ✅ Handle preflight properly for Express v5
-app.options(/.*/, cors());
-
+// ✅ Handle preflight OPTIONS requests
+app.options("*", (req, res) => {
+  res.sendStatus(204);
+});
 app.use(express.json());
 
 // Routes

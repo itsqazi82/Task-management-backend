@@ -20,17 +20,18 @@ app.use(cors({
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error("CORS blocked"));
+      callback(new Error("Not allowed by CORS"));
     }
   },
   methods: "GET,POST,PUT,DELETE,OPTIONS",
-  allowedHeaders: "Content-Type,Authorization"
+  allowedHeaders: "Content-Type, Authorization"
 }));
 
-// ✅ Handle preflight OPTIONS requests
-app.options("*", (req, res) => {
-  res.sendStatus(204);
+// ✅ Handle preflight
+app.options("/*", (req, res) => {
+  res.sendStatus(200);
 });
+
 app.use(express.json());
 
 // Routes

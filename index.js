@@ -8,10 +8,10 @@ const taskRoutes = require('./routes/taskRoutes');
 
 const app = express();
 
-// ✅ Connect to MongoDB
+// DB Connect
 connectDB();
 
-// ✅ Allowed Frontend URLs
+// Allowed Origins
 const allowedOrigins = [
   "https://task-management-frontend-three-gamma.vercel.app",
   "http://localhost:5173",
@@ -19,32 +19,32 @@ const allowedOrigins = [
 ];
 
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.log("❌ CORS Blocked:", origin);
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true,
+  origin: allowedOrigins,
   methods: "GET,POST,PUT,DELETE,OPTIONS",
-  allowedHeaders: "Content-Type, Authorization"
+  allowedHeaders: "Content-Type, Authorization",
 }));
 
-// ✅ Handle preflight requests
-// app.options("*", cors());
+// ✅ Must allow OPTIONS manually to prevent 502 on Railway
+app.options("*", (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", req.headers.origin || "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.sendStatus(200);
+});
 
-// ✅ Parse JSON
+// Body parser
 app.use(express.json());
 
-// ✅ Routes
+// Routes
+app.get("/", (req, res) => {
+  res.send("✅ Backend Running OK");
+});
+
 app.post('/api/auth/login', login);
 app.use('/api/admin', adminRoutes);
 app.use('/api/tasks', taskRoutes);
 
-// ✅ Port + Host for Railway / Vercel / Docker
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`✅ Server running at http://0.0.0.0:${PORT}`);
-});
+app.listen(PORT, "0.0.0.0", () =>
+  console.log(`✅ Server running on http://0.0.0.0:${PORT}`)
+);
